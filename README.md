@@ -20,6 +20,12 @@ The repository is at an early stage. We plan to grow shared CI, compatibility te
 - [LMCache documentation](https://docs.lmcache.ai/)
 - [LMCache core repository](https://github.com/LMCache/LMCache)
 
+## Plugins
+
+| Plugin | Backend | Maintainer |
+| --- | --- | --- |
+| [autumn](autumn/) | [autumn-rs](https://github.com/journeymidnight/autumn-rs) distributed KV over TCP or UCX/RDMA | [@thesues](https://github.com/thesues) |
+
 ## What belongs here
 
 Vendors and community maintainers can contribute in either of two ways:
