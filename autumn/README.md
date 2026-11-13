@@ -55,7 +55,7 @@ with `--parts 16`.
 lmcache server --l1-size-gb 40 --eviction-policy LRU \
   --l2-adapter '{
     "type": "plugin",
-    "module_path": "lmcache_autumn",
+    "module_path": "lmcache_l2_plugins.autumn",
     "class_name": "AutumnL2Adapter",
     "adapter_params": {"manager": "10.0.0.1:9001", "transport": "ucx"}
   }'
@@ -83,7 +83,7 @@ adapter `plugin`; its status reports `"type": "autumn"`.
 Authorization on, chunks expire after a day, a capacity cap:
 
 ```bash
---l2-adapter '{"type": "plugin", "module_path": "lmcache_autumn", "class_name": "AutumnL2Adapter", "adapter_params": {"manager": "10.0.0.1:9001,10.0.0.2:9001", "credential_file": "/etc/autumn/kvc.cred", "ttl_secs": 86400, "max_capacity_gb": 500}}'
+--l2-adapter '{"type": "plugin", "module_path": "lmcache_l2_plugins.autumn", "class_name": "AutumnL2Adapter", "adapter_params": {"manager": "10.0.0.1:9001,10.0.0.2:9001", "credential_file": "/etc/autumn/kvc.cred", "ttl_secs": 86400, "max_capacity_gb": 500}}'
 ```
 
 ## Partition-server memory tier

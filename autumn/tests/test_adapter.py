@@ -41,8 +41,8 @@ import pytest
 import torch
 
 # First Party
-from lmcache_autumn import AutumnL2Adapter, AutumnL2AdapterConfig
-from lmcache_autumn.adapter import AutumnConnector, read_credential_file
+from lmcache_l2_plugins.autumn import AutumnL2Adapter, AutumnL2AdapterConfig
+from lmcache_l2_plugins.autumn.adapter import AutumnConnector, read_credential_file
 
 _EMPTY_LAYOUT = MemoryLayoutDesc(shapes=[], dtypes=[])
 
@@ -243,7 +243,7 @@ def plugin_json(**fields) -> str:
     return json.dumps(
         {
             "type": "plugin",
-            "module_path": "lmcache_autumn",
+            "module_path": "lmcache_l2_plugins.autumn",
             "class_name": "AutumnL2Adapter",
             "adapter_params": {"manager": "127.0.0.1:9001", **fields},
         }

@@ -22,9 +22,13 @@ The repository is at an early stage. We plan to grow shared CI, compatibility te
 
 ## Plugins
 
-| Plugin | Backend | Maintainer |
-| --- | --- | --- |
-| [autumn](autumn/) | [autumn-rs](https://github.com/journeymidnight/autumn-rs) distributed KV over TCP or UCX/RDMA | [@thesues](https://github.com/thesues) |
+| Plugin | Module | Backend | Maintainer |
+| --- | --- | --- | --- |
+| [autumn](autumn/) | `lmcache_l2_plugins.autumn` | [autumn-rs](https://github.com/journeymidnight/autumn-rs) distributed KV over TCP or UCX/RDMA | [@thesues](https://github.com/thesues) |
+
+Each plugin here is imported as `lmcache_l2_plugins.<name>`. `lmcache_l2_plugins`
+is a namespace package with no `__init__.py`: every plugin directory builds its own
+distribution, which installs only its own subpackage, so plugins install side by side.
 
 ## What belongs here
 

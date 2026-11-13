@@ -2,6 +2,6 @@
 """LMCache L2 adapter plugin for autumn-rs."""
 
 # First Party
-from lmcache_autumn.adapter import AutumnL2Adapter, AutumnL2AdapterConfig
+from lmcache_l2_plugins.autumn.adapter import AutumnL2Adapter, AutumnL2AdapterConfig
 
 __all__ = ["AutumnL2Adapter", "AutumnL2AdapterConfig"]
