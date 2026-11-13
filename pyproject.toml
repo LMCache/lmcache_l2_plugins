@@ -3,30 +3,28 @@ requires = ["setuptools>=77.0.3", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "lmcache-l2-plugins-autumn"
+name = "lmcache-l2-plugins"
 version = "0.1.0"
-description = "LMCache L2 adapter plugin for autumn-rs"
+description = "L2 adapter plugins for LMCache"
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.11"
-dependencies = [
+dependencies = ["lmcache"]
+
+# One extra per plugin, named after its subpackage, carrying the backend's
+# client and the LMCache version the plugin needs.
+[project.optional-dependencies]
+autumn = [
     "lmcache>=0.5.7",
     "autumn-rs>=0.1.2",
 ]
-
-[project.optional-dependencies]
 test = ["pytest"]
 
 [project.urls]
-homepage = "https://github.com/LMCache/lmcache_l2_plugins/tree/main/autumn"
-autumn-rs = "https://github.com/journeymidnight/autumn-rs"
+homepage = "https://github.com/LMCache/lmcache_l2_plugins"
 
-# lmcache_l2_plugins is a namespace package shared by every plugin in this
-# repository; this distribution ships only lmcache_l2_plugins.autumn.
 [tool.setuptools.packages.find]
-where = ["src"]
-include = ["lmcache_l2_plugins.autumn*"]
-namespaces = true
+include = ["lmcache_l2_plugins*"]
 
 [tool.ruff]
 line-length = 88

@@ -19,14 +19,13 @@ no C++ extension to build.
 ## Install
 
 ```bash
-pip install "lmcache>=0.5.7"
-pip install "git+https://github.com/LMCache/lmcache_l2_plugins#subdirectory=autumn"
+pip install "lmcache-l2-plugins[autumn] @ git+https://github.com/LMCache/lmcache_l2_plugins"
 ```
 
-This pulls in the autumn-rs client (`pip install autumn-rs`). It speaks TCP
-everywhere. With `"transport": "ucx"` it moves chunks over RDMA through the
-host's UCX (>= 1.17, `libucp.so.0` on the loader path), which it loads only
-then.
+The `autumn` extra pulls in LMCache >= 0.5.7 and the autumn-rs client
+(`autumn-rs` on PyPI). The client speaks TCP everywhere. With
+`"transport": "ucx"` it moves chunks over RDMA through the host's UCX
+(>= 1.17, `libucp.so.0` on the loader path), which it loads only then.
 
 Over UCX the adapter registers its L1 arena when it is created, so chunks in
 the arena move straight between L1 and the cluster without a copy. This pins
@@ -95,9 +94,11 @@ append had not landed yet, which a cache can afford.
 
 ## Tests
 
+From the repository root:
+
 ```bash
-pip install -e "autumn[test]"
-pytest autumn/tests
+pip install -e ".[autumn,test]"
+pytest tests/autumn
 ```
 
 The unit tests replace the `autumn` client with an in-memory fake and need no

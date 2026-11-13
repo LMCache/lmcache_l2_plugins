@@ -434,7 +434,8 @@ class AutumnL2Adapter(NativeConnectorL2Adapter):
             import autumn
         except ImportError as e:
             raise RuntimeError(
-                "autumn L2 adapter requires the autumn-rs client: pip install autumn-rs"
+                "autumn L2 adapter requires the autumn-rs client: "
+                'pip install "lmcache-l2-plugins[autumn]"'
             ) from e
 
         principal, credential = None, None
