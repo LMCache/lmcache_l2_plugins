@@ -20,6 +20,20 @@ The repository is at an early stage. We plan to grow shared CI, compatibility te
 - [LMCache documentation](https://docs.lmcache.ai/)
 - [LMCache core repository](https://github.com/LMCache/LMCache)
 
+## Plugins
+
+| Plugin | Module | Backend | Maintainer |
+| --- | --- | --- | --- |
+| [autumn](lmcache_l2_plugins/autumn/) | `lmcache_l2_plugins.autumn` | [autumn-rs](https://github.com/journeymidnight/autumn-rs) distributed KV over TCP or UCX/RDMA | [@thesues](https://github.com/thesues) |
+
+The plugins hosted here ship together as one package, `lmcache-l2-plugins`. Each
+plugin is a subpackage `lmcache_l2_plugins/<name>/` with its tests in
+`tests/<name>/`, and its backend's dependencies form an extra of the same name:
+
+```bash
+pip install "lmcache-l2-plugins[autumn] @ git+https://github.com/LMCache/lmcache_l2_plugins"
+```
+
 ## What belongs here
 
 Vendors and community maintainers can contribute in either of two ways:
