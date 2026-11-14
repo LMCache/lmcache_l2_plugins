@@ -1,0 +1,52 @@
+name: Nightly tests
+
+on:
+  schedule:
+    # 02:17 Asia/Shanghai every day (18:17 UTC).
+    - cron: "17 18 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+concurrency:
+  group: nightly-tests-main
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test main on Python 3.12
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout main
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip uv
+          uv pip install --system torch \
+            --index-url https://download.pytorch.org/whl/cpu
+          NO_GPU_EXT=1 uv pip install --system -e ".[autumn,test]"
+
+      - name: Run unit tests
+        run: python -m pytest -q -rs tests
