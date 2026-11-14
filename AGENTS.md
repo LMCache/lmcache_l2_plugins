@@ -9,3 +9,5 @@
   nightly job in a Linux environment; for CPU-only tests, install torch from
   `https://download.pytorch.org/whl/cpu` and set `NO_GPU_EXT=1` while installing
   the project.
+- If GitHub Actions warns that an action still targets deprecated Node.js 20,
+  update its pinned SHA to a release whose `action.yml` declares Node.js 24.
