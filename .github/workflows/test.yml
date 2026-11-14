@@ -1,10 +1,14 @@
-name: Nightly tests
+name: Tests
 
 on:
   schedule:
     # 02:17 Asia/Shanghai every day (18:17 UTC).
     - cron: "17 18 * * *"
   workflow_dispatch:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -14,26 +18,28 @@ defaults:
     shell: bash
 
 concurrency:
-  group: nightly-tests-main
+  group: tests-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   test:
-    name: Test main on Python 3.12
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    name: Unit tests (Python 3.12)
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
     steps:
       - name: Harden Runner
-        uses: step-security/harden-runner@20cf305ff2072d973412fa9b1e3a4f227bda3c76 # v2.14.0
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
         with:
           disable-sudo-and-containers: true
           egress-policy: audit
 
-      - name: Checkout main
+      - name: Checkout tested revision
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          ref: main
+          # Test GitHub's merge revision for PRs; nightly/manual always test main.
+          ref: ${{ github.event_name == 'pull_request' && github.ref || 'main' }}
           persist-credentials: false
 
       - name: Setup Python 3.12
