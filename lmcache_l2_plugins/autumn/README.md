@@ -103,16 +103,35 @@ pytest tests/autumn
 
 The unit tests replace the `autumn` client with an in-memory fake and need no
 cluster. Every adapter in them is built from an `--l2-adapter` JSON of type
-`plugin`, the way `lmcache server` builds it. One test runs against a live
-cluster when `AUTUMN_MANAGER` (`ip:port`) is set; add
-`AUTUMN_TRANSPORT=ucx` to run it over UCX through a registered arena, and
+`plugin`, the way `lmcache server` builds it. Two tests run against a live
+cluster when `AUTUMN_MANAGER` (`ip:port`) is set: the adapter test and the
+end-to-end test below. Add `AUTUMN_TRANSPORT=ucx` to run them over UCX,
+`AUTUMN_NAMESPACE` for a namespace other than `kvc`, and
 `AUTUMN_CREDENTIAL_FILE` for a protected namespace.
+
+`tests/autumn/test_autumn_e2e.py` runs the whole path: it starts an
+`lmcache server` with this plugin, stores KV chunks through the
+`lmcache bench server` client, waits for them to reach autumn, clears L1
+(`POST /cache/clear`), then looks them up and retrieves them again. Every
+chunk must match what was stored, and the server's counters must show every
+hit coming from L2 and none from L1. It prints the L2 read throughput without
+judging it. Point it at autumn-rs's compose file and it starts the cluster and
+removes it afterwards (the host must reach the containers' addresses, as on a
+Linux bridge), or at a running cluster with `AUTUMN_MANAGER`, where each run
+leaves its 512 MiB of chunks behind. Both the server and the bench client run
+on CPU:
+
+```bash
+AUTUMN_COMPOSE_FILE=~/autumn-rs/deploy/compose/docker-compose.yml \
+    pytest -s tests/autumn/test_autumn_e2e.py
+```
 
 Validation status, with LMCache 0.5.7.post1 and autumn-rs 0.1.2 on one host:
 
 | Check | Result |
 | --- | --- |
-| Unit tests | 29 passed, 1 skipped (the live test) |
+| Unit tests | 29 passed, 2 skipped (the live and e2e tests) |
+| E2E test against the compose cluster, TCP | passed: 8 sequences, 512 MiB of KV read back from L2 |
 | Live test against a 3-node cluster, TCP | passed |
 | Live test against a 3-node cluster, UCX over RoCE | passed |
 | `lmcache server` with the plugin JSON above, UCX | adapter created, L1 arena registered, clean shutdown |
