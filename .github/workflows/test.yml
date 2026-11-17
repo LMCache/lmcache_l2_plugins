@@ -23,7 +23,11 @@ concurrency:
 
 jobs:
   test:
-    name: Unit tests (Python 3.12)
+    name: Unit tests (${{ matrix.plugin }}, Python 3.12)
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [autumn]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
 
@@ -51,10 +55,10 @@ jobs:
           python -m pip install --upgrade pip uv
           uv pip install --system torch \
             --index-url https://download.pytorch.org/whl/cpu
-          NO_GPU_EXT=1 uv pip install --system -e ".[autumn,test]"
+          NO_GPU_EXT=1 uv pip install --system -e ".[${{ matrix.plugin }},test]"
 
       - name: Run unit tests
-        run: python -m pytest -q -rs tests
+        run: python -m pytest -q -rs "tests/${{ matrix.plugin }}"
 
   l2-e2e:
     name: L2 server e2e (${{ matrix.plugin }}, LMCache dev, CPU)

@@ -22,6 +22,11 @@
 - The CPU server bench defaults to engine-driven transfers. Start its server
   with `--supported-transfer-mode engine_driven` (or `auto`); the server default
   enables only `lmcache_driven` and rejects the client's registration RPC.
+- Keep importlib mode enabled for e2e collection: multiple plugins may use the
+  same test filename. Backend test folders need `__init__.py` so their module
+  names stay under `e2e.<plugin>` rather than shadowing installed SDKs.
+  Register new plugins in both CI matrices so each UT job installs its own
+  dependency extra and collects only `tests/<plugin>`.
 
 ## Documentation deployment
 

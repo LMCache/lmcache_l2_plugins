@@ -54,7 +54,8 @@ uv pip install ".[autumn,test]" pytest-timeout
 Start or configure the chosen backend as its README describes, then run:
 
 ```bash
-bash e2e/common_scripts/run.sh e2e/<plugin>
+PLUGIN=autumn
+bash e2e/common_scripts/run.sh "e2e/$PLUGIN"
 ```
 
 With an existing backend, set the fixture's connection variables and run that
@@ -63,14 +64,21 @@ command directly; backend provisioning scripts are not part of the case.
 ## Add an L2 plugin
 
 1. Provide an `L2Backend` fixture and invoke `assert_store_clear_retrieve` in
-   `e2e/<plugin>/test_server_roundtrip.py`.
+   `e2e/<plugin>/test_server_roundtrip.py`. Add `e2e/<plugin>/__init__.py` so
+   tests use the `e2e.<plugin>` namespace instead of shadowing the vendor SDK.
 2. For CI, implement `e2e/<plugin>/service.sh` with `start`, `logs`, and `stop`.
    `start` waits for readiness and may write Bash `export` statements to
    `$E2E_ARTIFACTS/backend.env`; CI sources this file before running pytest.
    `logs` writes backend diagnostics to `$E2E_ARTIFACTS`; `stop` releases only
    test-owned resources and tolerates a partially failed startup.
-3. Add the plugin name to the e2e job's `matrix.plugin` list. CI installs the
-   matching package extra and runs all scripts on the GitHub runner.
+3. Define its dependency extra in `pyproject.toml` and put its UT under
+   `tests/<plugin>/`. Add the plugin name to both jobs' `matrix.plugin` lists.
+   Each UT job installs only its plugin's extra and collects its own directory;
+   each e2e job starts only its backend and selects `e2e/<plugin>/`.
+
+Adding a directory does not automatically register a CI job. The e2e pytest
+configuration uses importlib mode and package namespaces so different vendors
+can share test filenames when their directories are collected together.
 
 Backend startup is entirely vendor-owned: native processes, Compose, or an
 existing remote service can all be used. No Compose file or container image is
