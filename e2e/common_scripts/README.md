@@ -71,13 +71,16 @@ command directly; backend provisioning scripts are not part of the case.
    `$E2E_ARTIFACTS/backend.env`; CI sources this file before running pytest.
    `logs` writes backend diagnostics to `$E2E_ARTIFACTS`; `stop` releases only
    test-owned resources and tolerates a partially failed startup.
-3. Define its dependency extra in `pyproject.toml` and put its UT under
-   `tests/<plugin>/`. Add the plugin name to both jobs' `matrix.plugin` lists.
-   Each UT job installs only its plugin's extra and collects its own directory;
-   each e2e job starts only its backend and selects `e2e/<plugin>/`.
+3. Declare runtime and test dependencies in
+   `lmcache_l2_plugins/<plugin>/plugin.toml`, following
+   [the plugin guide](../../docs/adding-a-plugin.md). The existing UT gate
+   discovers every declaration and verifies it in an isolated environment.
+   E2e CI reuses that inventory and opts in plugins with complete
+   `e2e/<plugin>/` folders; no workflow matrix or second plugin list is edited.
 
-Adding a directory does not automatically register a CI job. The e2e pytest
-configuration uses importlib mode and package namespaces so different vendors
+A registered plugin without an e2e folder runs UT only. Partial e2e folders
+or folders for undeclared plugins fail discovery rather than silently skipping.
+The e2e pytest configuration uses importlib mode and package namespaces so different vendors
 can share test filenames when their directories are collected together.
 
 Backend startup is entirely vendor-owned: native processes, Compose, or an

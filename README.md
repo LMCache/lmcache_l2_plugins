@@ -25,15 +25,17 @@ without starting an inference engine.
 - [Build the documentation locally](docs/README.md)
 - [Design documents](docs/design/README.md)
 - [Install and use an L2 plugin](docs/installation-and-integration.md)
+- [Package releases, PR artifacts, and publishing setup](docs/publishing.md)
+- [Add a plugin without editing shared build or CI code](docs/adding-a-plugin.md)
 - [Learn how to build an external L2 adapter](https://github.com/LMCache/LMCache/blob/dev/docs/source/developer_guide/extending_lmcache/storage_plugins.rst#mp-mode-l2-adapter-plugins-plugin)
 - [LMCache documentation](https://docs.lmcache.ai/)
 - [LMCache core repository](https://github.com/LMCache/LMCache)
 
 ## Plugins
 
-| Plugin | Module | Backend | Maintainer |
-| --- | --- | --- | --- |
-| [autumn](lmcache_l2_plugins/autumn/) | `lmcache_l2_plugins.autumn` | [autumn-rs](https://github.com/journeymidnight/autumn-rs) distributed KV over TCP or UCX/RDMA | [@thesues](https://github.com/thesues) |
+Browse the [plugin directories](lmcache_l2_plugins/). Each backend owns its
+implementation, `plugin.toml`, and README in its own directory. Shared packaging
+and CI discover these directories automatically.
 
 The plugins hosted here ship together as one package, `lmcache-l2-plugins`. Each
 plugin is a subpackage `lmcache_l2_plugins/<name>/` with its tests in

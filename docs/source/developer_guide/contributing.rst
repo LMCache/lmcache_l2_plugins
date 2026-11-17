@@ -16,7 +16,8 @@ Repository layout
 
 * ``lmcache_l2_plugins/<name>/``: plugin implementation and backend README.
 * ``tests/<name>/``: plugin tests.
-* ``pyproject.toml``: backend dependencies in an extra named after the plugin.
+* ``lmcache_l2_plugins/<name>/plugin.toml``: backend dependencies and verification
+  declarations; packaging automatically generates the extra named after the plugin.
 * ``docs/source/plugins/``: integration pages included in the Sphinx site.
 * ``docs/design/<name>/``: design documents matching the plugin package path.
 
