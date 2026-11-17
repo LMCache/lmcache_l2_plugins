@@ -31,7 +31,7 @@
 - This repository has no `.pre-commit-config.yaml`. Until hooks are added,
   validate packaging changes with Ruff, isort, `actionlint`, `bash -n`, and
   `.github/tests`, then run the Linux package installation checks documented in
-  `docs/publishing.md`. Do not report an unavailable pre-commit run as passing.
+  `docs/source/developer_guide/publishing.md`. Do not report an unavailable pre-commit run as passing.
 - Setuptools' isolated PEP 517 hooks do not guarantee the checkout is on
   `sys.path`. `setup.py` loads only the build helper via `runpy`; keep that
   helper and plugin declarations in `MANIFEST.in`. Validate with `python -m
@@ -55,3 +55,12 @@
 - Verify target repository access and secret availability before treating a
   successful docs build as a successful deployment. Organization names
   `LMCache-website` and `LM-Cache-Website` identify different organizations.
+
+## E2e package and documentation boundaries
+
+- Keep user/developer guides under `docs/source/` and architecture decisions
+  under `docs/design/`; register site pages in the appropriate toctree.
+- E2e belongs after the Package build in the same workflow. Download its
+  `distributions` artifact rather than rebuilding or installing the checkout.
+  Run from a staging directory containing only `e2e/` to keep the repository's
+  package directory off the import path and verify the installed wheel.

@@ -79,7 +79,7 @@ See [publishing.md](publishing.md) for the common release process and commands.
 To opt a declared plugin into real-server CI, add `e2e/<name>/__init__.py`,
 `test_server_roundtrip.py` and `service.sh`. The test fixture provides the shared
 `L2Backend` contract; the script implements backend-specific `start`, `logs` and
-`stop` actions. See [the e2e guide](../e2e/common_scripts/README.md).
+`stop` actions. See [the e2e guide](e2e.md).
 
 E2e discovery reuses the plugin inventory, validates the complete folder and
 creates the CI matrix automatically. A normal UT-only plugin needs no e2e

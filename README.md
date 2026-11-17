@@ -13,7 +13,7 @@ LMCache core defines the L2 adapter interface and loads external implementations
 
 The repository is at an early stage. We plan to grow shared CI, compatibility testing, contribution templates, and integration documentation over time.
 
-CI runs unit tests and a [shared real-server L2 e2e](e2e/common_scripts/README.md) on pull
+CI runs unit tests and a [shared real-server L2 e2e](docs/source/developer_guide/e2e.md) on pull
 requests (including drafts), nightly, published releases, and manual dispatch.
 Release runs test the released plugin tag. The e2e builds LMCache `dev` with CPU
 extensions and verifies L2 writes and checksum-correct reads after clearing L1,
@@ -24,9 +24,9 @@ without starting an inference engine.
 - [LMCache L2 Plugins documentation](https://lmcache-website.github.io/lmcache-l2-plugins/)
 - [Build the documentation locally](docs/README.md)
 - [Design documents](docs/design/README.md)
-- [Install and use an L2 plugin](docs/installation-and-integration.md)
-- [Package releases, PR artifacts, and publishing setup](docs/publishing.md)
-- [Add a plugin without editing shared build or CI code](docs/adding-a-plugin.md)
+- [Install and use an L2 plugin](docs/source/getting_started/installation.md)
+- [Package releases, PR artifacts, and publishing setup](docs/source/developer_guide/publishing.md)
+- [Add a plugin without editing shared build or CI code](docs/source/developer_guide/adding-a-plugin.md)
 - [Learn how to build an external L2 adapter](https://github.com/LMCache/LMCache/blob/dev/docs/source/developer_guide/extending_lmcache/storage_plugins.rst#mp-mode-l2-adapter-plugins-plugin)
 - [LMCache documentation](https://docs.lmcache.ai/)
 - [LMCache core repository](https://github.com/LMCache/LMCache)

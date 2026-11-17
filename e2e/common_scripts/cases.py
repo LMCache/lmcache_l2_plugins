@@ -7,19 +7,26 @@ from __future__ import annotations
 # Standard
 from collections.abc import Callable
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING
+import time
 import uuid
 
 # Third Party
 import httpx
 
-# Local
-from .server import server, wait_until
-
 if TYPE_CHECKING:
     # Third Party
     from lmcache.v1.distributed.api import ObjectKey
+
+
+def wait_until(check: Callable[[], bool], description: str) -> None:
+    """Poll a bounded condition, preserving assertion failures as diagnostics."""
+    deadline = time.monotonic() + 60
+    while time.monotonic() < deadline:
+        if check():
+            return
+        time.sleep(0.1)
+    raise AssertionError(f"Timed out waiting for {description}")
 
 
 @dataclass(frozen=True)
@@ -35,7 +42,9 @@ class L2Backend:
     exists: Callable[[list[ObjectKey]], list[bool]]
 
 
-def assert_store_clear_retrieve(backend: L2Backend, tmp_path: Path) -> None:
+def assert_store_clear_retrieve(
+    backend: L2Backend, lmcache_server: tuple[str, str]
+) -> None:
     """Verify L2 writes and identical KV after clearing the real server's L1."""
     # Imported only when the case runs: unit jobs may use stable LMCache.
     # Third Party
@@ -55,10 +64,8 @@ def assert_store_clear_retrieve(backend: L2Backend, tmp_path: Path) -> None:
     ]
     assert backend.exists(keys) == [False] * 4
 
-    with (
-        server(tmp_path, backend.adapter_config) as (rpc_url, http_url),
-        httpx.Client(base_url=http_url, timeout=10) as http,
-    ):
+    rpc_url, http_url = lmcache_server
+    with httpx.Client(base_url=http_url, timeout=10) as http:
 
         def storage_status() -> dict:
             response = http.get("/status")

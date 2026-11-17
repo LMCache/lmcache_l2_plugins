@@ -5,7 +5,6 @@
 from __future__ import annotations
 
 # Standard
-from pathlib import Path
 from typing import TYPE_CHECKING
 import os
 import socket
@@ -26,7 +25,7 @@ def l2_backend() -> L2Backend:
     """Configure the Autumn plugin and an independent key-existence probe."""
     manager = os.environ.get("AUTUMN_MANAGER")
     if not manager:
-        pytest.skip("Set AUTUMN_MANAGER; see e2e/autumn/README.md")
+        pytest.skip("Set AUTUMN_MANAGER; see docs/source/developer_guide/e2e-autumn.md")
 
     # Third Party
     from lmcache.v1.distributed.key_codec import encode_storage_key
@@ -60,6 +59,8 @@ def l2_backend() -> L2Backend:
     )
 
 
-def test_server_roundtrip(l2_backend: L2Backend, tmp_path: Path) -> None:
+def test_server_roundtrip(
+    l2_backend: L2Backend, lmcache_server: tuple[str, str]
+) -> None:
     """Run the shared store/clear/retrieve case against real Autumn storage."""
-    assert_store_clear_retrieve(l2_backend, tmp_path)
+    assert_store_clear_retrieve(l2_backend, lmcache_server)

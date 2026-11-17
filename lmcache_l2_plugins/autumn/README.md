@@ -95,7 +95,7 @@ append had not landed yet, which a cache can afford.
 ## Tests
 
 For the real-server CPU e2e against LMCache `dev`, including a verified L1
-clear and L2 readback, see [the e2e guide](https://github.com/LMCache/lmcache_l2_plugins/blob/main/e2e/autumn/README.md).
+clear and L2 readback, see [the e2e guide](https://github.com/LMCache/lmcache_l2_plugins/blob/main/docs/source/developer_guide/e2e-autumn.md).
 
 From the repository root:
 

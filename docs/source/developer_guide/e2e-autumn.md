@@ -1,7 +1,7 @@
 # Autumn server e2e
 
 LMCache and pytest run directly in the native Python environment described in
-[the shared guide](../common_scripts/README.md). Compose is used only to start
+[the shared guide](e2e.md). Compose is used only to start
 Autumn's storage backend: etcd, one manager, three extent nodes and one
 partition server. There is no LMCache or test-runner service in the Compose file.
 

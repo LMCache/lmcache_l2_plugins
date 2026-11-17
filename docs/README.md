@@ -29,7 +29,7 @@ backend extras just to build the docs.
 - `source/developer_guide/`: contribution and documentation guidance.
 - `design/`: Markdown design documents mirroring `lmcache_l2_plugins/`.
 
-The installation page includes `docs/installation-and-integration.md`, and the
+The installation guide lives at `docs/source/getting_started/installation.md`, and the
 Autumn page includes `lmcache_l2_plugins/autumn/README.md` through MyST. Edit
 those original files to update both their GitHub views and the site. Add new
 site pages to the appropriate `index.rst` toctree.

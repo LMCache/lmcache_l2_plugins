@@ -2,31 +2,23 @@
 """Shared lifecycle helpers for a real LMCache server subprocess."""
 
 # Standard
-from collections.abc import Callable, Iterator
-from contextlib import contextmanager
+from collections.abc import Iterator
 from pathlib import Path
 import json
 import signal
 import socket
 import subprocess
-import time
 
 # Third Party
 import httpx
+import pytest
+
+# First Party
+from e2e.common_scripts.cases import L2Backend, wait_until
 
 
-def wait_until(check: Callable[[], bool], description: str) -> None:
-    """Poll a bounded condition, preserving assertion failures as diagnostics."""
-    deadline = time.monotonic() + 60
-    while time.monotonic() < deadline:
-        if check():
-            return
-        time.sleep(0.1)
-    raise AssertionError(f"Timed out waiting for {description}")
-
-
-@contextmanager
-def server(tmp_path: Path, adapter: dict) -> Iterator[tuple[str, str]]:
+@pytest.fixture
+def lmcache_server(tmp_path: Path, l2_backend: L2Backend) -> Iterator[tuple[str, str]]:
     """Run the installed CLI and stop its owned process before returning."""
     with socket.socket() as rpc, socket.socket() as http:
         rpc.bind(("127.0.0.1", 0))
@@ -54,12 +46,14 @@ def server(tmp_path: Path, adapter: dict) -> Iterator[tuple[str, str]]:
         "--eviction-policy",
         "LRU",
         "--l2-adapter",
-        json.dumps(adapter),
+        json.dumps(l2_backend.adapter_config),
     ]
     log_path = tmp_path / "lmcache-server.log"
     print(f"Server command: {command}")
     with log_path.open("w") as log:
-        process = subprocess.Popen(command, stdout=log, stderr=subprocess.STDOUT)
+        process = subprocess.Popen(
+            command, cwd=tmp_path, stdout=log, stderr=subprocess.STDOUT
+        )
     try:
 
         def ready() -> bool:
