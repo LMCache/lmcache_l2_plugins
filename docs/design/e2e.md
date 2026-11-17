@@ -8,27 +8,46 @@ that clearing L1 causes retrieval from L2.
 
 ```mermaid
 flowchart TD
-    Event[PR / nightly / release / manual] --> Package[Package workflow]
-    Package --> Build[build: wheel + sdist + installed-package verification]
-    Build --> Artifact[distributions artifact]
-    Package --> Discover[discover-e2e: build_support.e2e]
-    Discover --> Matrix[l2-e2e: one job per declared backend with e2e]
-    Artifact --> Matrix
-    Matrix --> Install[Install LMCache dev + built plugin wheel]
-    Install --> Start[e2e/plugin/service.sh start]
-    Start --> Stage[Copy only e2e outside checkout]
-    Stage --> Runner[e2e/common_scripts/run.sh]
-    Runner --> Pytest[pytest: e2e/plugin/test_server_roundtrip.py]
-    Pytest --> Backend[Backend fixture: adapter JSON + independent exists probe]
-    Backend --> Fixture[e2e/conftest.py: lmcache_server fixture]
-    Fixture --> Server[Real lmcache server subprocess + healthcheck]
-    Server --> Case[common_scripts/cases.py: assert_store_clear_retrieve]
-    Case --> Store[Initial miss / deterministic CPU KV / store RPC]
-    Store --> Probe[Independent L2 existence check / drain asynchronous stores]
-    Probe --> Clear[HTTP clear L1 / assert zero L1 objects / L2 intact]
-    Clear --> Load[New zeroed buffer / full hit / retrieve RPC / checksum equality]
-    Load --> Cleanup[Close client / stop server]
-    Cleanup --> Finish[Always: backend logs + stop + upload evidence]
+    subgraph Prepare["1. Build and prepare the test environment"]
+        Event[PR / nightly / release / manual] --> Package[Package workflow]
+        Package --> Build[build: wheel + sdist + installed-package verification]
+        Build --> Artifact[distributions artifact]
+        Package --> Discover[discover-e2e: build_support.e2e]
+        Discover --> Matrix[l2-e2e: one job per declared backend with e2e]
+        Artifact --> Matrix
+        Matrix --> Install[Install LMCache dev + built plugin wheel]
+    end
+
+    subgraph Launch["2. Start the backend and real LMCache server"]
+        Start[e2e/plugin/service.sh start] --> Stage[Copy only e2e outside checkout]
+        Stage --> Runner[e2e/common_scripts/run.sh]
+        Runner --> Pytest[pytest: e2e/plugin/test_server_roundtrip.py]
+        Pytest --> Backend[Backend fixture: adapter JSON + independent exists probe]
+        Backend --> Fixture[e2e/conftest.py: lmcache_server fixture]
+        Fixture --> Server[Real lmcache server subprocess + healthcheck]
+    end
+
+    subgraph Verify["3. Verify persistence and retrieval after clearing L1"]
+        Case[common_scripts/cases.py: assert_store_clear_retrieve]
+        Case --> Store[Initial miss / deterministic CPU KV / store RPC]
+        Store --> Probe[Independent L2 existence check / drain asynchronous stores]
+        Probe --> Clear[HTTP clear L1 / assert zero L1 objects / L2 intact]
+        Clear --> Load[New zeroed buffer / full hit / retrieve RPC / checksum equality]
+    end
+
+    subgraph Teardown["4. Clean up and collect evidence"]
+        Cleanup[Close client / stop server]
+        Cleanup --> Finish[Always: backend logs + stop + upload evidence]
+    end
+
+    Install --> Start
+    Server --> Case
+    Load --> Cleanup
+
+    style Prepare fill:#eef5ff,stroke:#4976b8,stroke-width:2px
+    style Launch fill:#f0f8f2,stroke:#4d8a62,stroke-width:2px
+    style Verify fill:#fff8e8,stroke:#ad8427,stroke-width:2px
+    style Teardown fill:#f5f0fa,stroke:#8561a6,stroke-width:2px
 ```
 
 The public developer instructions live in
