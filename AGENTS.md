@@ -24,3 +24,6 @@
   enables only `lmcache_driven` and rejects the client's registration RPC.
 - Keep `e2e/common_scripts/compose.yaml` first when layering a vendor's Compose file:
   relative build contexts and artifact volumes resolve against the first file.
+- The e2e container runs as root and pytest creates 0700 temporary directories.
+  Keep the runner script's EXIT permission cleanup so the host GitHub runner
+  can upload logs after both successful and failing test runs.
