@@ -95,7 +95,7 @@ append had not landed yet, which a cache can afford.
 ## Tests
 
 For the real-server CPU e2e against LMCache `dev`, including a verified L1
-clear and L2 readback, see [the e2e guide](../../.buildkite/k3_tests/autumn/README.md).
+clear and L2 readback, see [the e2e guide](../../e2e/autumn/README.md).
 
 From the repository root:
 

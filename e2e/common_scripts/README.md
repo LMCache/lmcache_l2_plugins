@@ -3,24 +3,23 @@
 The shared case starts a real `lmcache server` and uses CPU KV buffers through
 LMCache dev's `ServerBenchClient`. It needs no inference engine, model, CUDA,
 or GPU. Backend implementations supply their differences under
-`.buildkite/k3_tests/<plugin>/`.
+`e2e/<plugin>/`.
 
 ## Layers
 
-Like LMCache, ordinary tests live in `tests/` and end-to-end scenarios live
-under `.buildkite/k3_tests/`. This repository runs them with GitHub Actions;
-the directory layout does not require a Buildkite agent. Default `pytest`
+Ordinary tests live in `tests/` and end-to-end scenarios live in `e2e/`.
+GitHub Actions runs both suites on `ubuntu-24.04` runners. Default `pytest`
 collects only `tests/`; the e2e runner selects its own `pytest.ini`.
 
 ```text
-.buildkite/k3_tests/common_scripts/
+e2e/common_scripts/
   cases.py       L2Backend contract and store/clear/retrieve assertions
   server.py      LMCache server lifecycle, readiness and bounded shutdown
   Dockerfile     CPU LMCache build and selected plugin extra installation
   compose.yaml   Shared runner service, build context and artifact volume
   run.sh         Shared pytest command and report locations
 
-.buildkite/k3_tests/<plugin>/
+e2e/<plugin>/
   test_server_roundtrip.py   Backend fixture and shared case invocation
   compose.yaml              Backend services and runner overrides
   README.md                 Backend prerequisites and run commands
@@ -41,13 +40,13 @@ buffers and compares every chunk checksum.
 
 ## Add an L2 plugin
 
-1. Add `.buildkite/k3_tests/<plugin>/test_server_roundtrip.py`. Its fixture
+1. Add `e2e/<plugin>/test_server_roundtrip.py`. Its fixture
    returns an `L2Backend`; its test calls `assert_store_clear_retrieve(backend, tmp_path)`.
    Keep optional SDK imports inside the fixture, after checking whether its
    live backend is configured, so e2e collection can skip an unconfigured backend.
-2. Add `.buildkite/k3_tests/<plugin>/compose.yaml`. Define the backend services
+2. Add `e2e/<plugin>/compose.yaml`. Define the backend services
    and extend the shared `test` service with `build.args.L2_PLUGIN: <plugin>`, its backend
-   environment, `E2E_TEST_PATH: .buildkite/k3_tests/<plugin>`, and readiness
+   environment, `E2E_TEST_PATH: e2e/<plugin>`, and readiness
    dependencies.
    The matching package extra installs that plugin's dependencies.
 3. Add `<plugin>` to the e2e job's `matrix.plugin` list. The common job handles

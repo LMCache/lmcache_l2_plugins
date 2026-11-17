@@ -17,7 +17,7 @@ run inside the Compose network to reach advertised backend node addresses.
 From the repository root:
 
 ```bash
-export COMPOSE_FILE=.buildkite/k3_tests/common_scripts/compose.yaml:.buildkite/k3_tests/autumn/compose.yaml
+export COMPOSE_FILE=e2e/common_scripts/compose.yaml:e2e/autumn/compose.yaml
 export COMPOSE_PROJECT_NAME=autumn-e2e
 export LMCACHE_REF=$(git ls-remote https://github.com/LMCache/LMCache.git refs/heads/dev | cut -f1)
 docker compose build test
