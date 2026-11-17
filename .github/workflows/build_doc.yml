@@ -76,7 +76,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: documentation
-      url: https://docs.lmcache.ai/l2-plugins/
+      url: https://docs.lmcache.ai/lmcache-l2-plugins/
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -86,10 +86,10 @@ jobs:
 
       - name: Check deployment credential
         env:
-          LMCACHE_DOC: ${{ secrets.LMCACHE_DOC }}
+          LMCACHE_L2_DOC: ${{ secrets.LMCACHE_L2_DOC }}
         run: |
-          if [ -z "$LMCACHE_DOC" ]; then
-            echo "::error::Configure LMCACHE_DOC with write access to LM-Cache-Website/lm-cache-website.github.io, as in LMCache's documentation workflow."
+          if [ -z "$LMCACHE_L2_DOC" ]; then
+            echo "::error::Configure LMCACHE_L2_DOC with write access to LM-Cache-Website/lmcache-l2-plugins, for the independent plugin documentation website."
             exit 1
           fi
 
@@ -102,9 +102,9 @@ jobs:
       - name: Checkout documentation website
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          repository: LM-Cache-Website/lm-cache-website.github.io
+          repository: LM-Cache-Website/lmcache-l2-plugins
           ref: main
-          token: ${{ secrets.LMCACHE_DOC }}
+          token: ${{ secrets.LMCACHE_L2_DOC }}
           path: target-repo
 
       - name: Publish plugin documentation
@@ -112,14 +112,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions@github.com"
-          # Refresh before each attempt in case LMCache publishes concurrently.
+          # Retry if another update reaches the publishing repository first.
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
-            mkdir -p l2-plugins
-            rsync -a --delete ../output/ l2-plugins/
+            rsync -a --delete --exclude=.git --exclude=.github ../output/ ./
             touch .nojekyll
-            git add -- l2-plugins .nojekyll
+            git add --all
             if git diff --cached --quiet; then
               echo "No documentation changes to publish."
               exit 0

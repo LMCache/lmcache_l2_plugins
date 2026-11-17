@@ -14,9 +14,13 @@
 
 ## Documentation deployment
 
-- Follow LMCache's `.github/workflows/build_doc.yml`: publish to
-  `LM-Cache-Website/lm-cache-website.github.io` using `LMCACHE_DOC`. This project's
-  output belongs only in `l2-plugins/`, served at `docs.lmcache.ai/l2-plugins/`.
-- Verify that `LMCACHE_DOC` is available to this repository before treating a
-  successful docs build as a successful deployment. A secret configured only on
-  the LMCache core repository is not inherited by companion repositories.
+- Follow LMCache's publishing pattern, using the independent repository
+  `LM-Cache-Website/lmcache-l2-plugins` and the `LMCACHE_L2_DOC` Actions secret.
+  Publish generated HTML to its root. Do not write to the main LMCache website
+  repository `LM-Cache-Website/lm-cache-website.github.io`.
+- A GitHub Pages project site inherits the organization's custom domain. With
+  Pages publishing from `main` at `/`, this site's URL is
+  `https://docs.lmcache.ai/lmcache-l2-plugins/`; no new DNS record is needed.
+- Verify publishing-repository access and secret availability before treating
+  a successful docs build as a successful deployment. Companion repositories
+  do not inherit repository secrets from LMCache core.
