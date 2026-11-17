@@ -14,8 +14,9 @@
 
 ## Documentation deployment
 
-- Verify the public Pages URL over HTTP before documenting it. The organization
-  site's `CNAME` can redirect project sites: at setup on 2026-11-17,
-  `lmcache.github.io/lmcache_l2_plugins/` redirected to `blog.lmcache.ai`,
-  whose DNS served WordPress rather than GitHub Pages. A successful Pages build
-  alone does not verify that the public domain serves the documentation.
+- Follow LMCache's `.github/workflows/build_doc.yml`: publish to
+  `LM-Cache-Website/lm-cache-website.github.io` using `LMCACHE_DOC`. This project's
+  output belongs only in `l2-plugins/`, served at `docs.lmcache.ai/l2-plugins/`.
+- Verify that `LMCACHE_DOC` is available to this repository before treating a
+  successful docs build as a successful deployment. A secret configured only on
+  the LMCache core repository is not inherited by companion repositories.

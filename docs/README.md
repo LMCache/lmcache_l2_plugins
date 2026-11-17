@@ -36,9 +36,11 @@ site pages to the appropriate `index.rst` toctree.
 
 ## CI and deployment
 
-The published site is [LMCache L2 Plugins documentation](https://l2-plugins.lmcache.ai/).
-GitHub Pages hosts the site on this repository's custom domain. The site becomes
-available after DNS is configured and the first deployment from `main` completes.
+The documentation URL is [LMCache L2 Plugins documentation](https://docs.lmcache.ai/l2-plugins/).
+The site uses LMCache's existing documentation domain and publishing repository,
+[LM-Cache-Website/lm-cache-website.github.io](https://github.com/LM-Cache-Website/lm-cache-website.github.io),
+following the [LMCache documentation workflow](https://github.com/LMCache/LMCache/blob/dev/.github/workflows/build_doc.yml).
+Plugin pages are published under `l2-plugins/` in that repository.
 
 The `Documentation` workflow builds with warnings treated as errors on pull
 requests. Download its `documentation-html` artifact and open `index.html` to
@@ -50,17 +52,13 @@ guide, plugin READMEs, assets, documentation requirements, Windows build script,
 or workflow also trigger a rebuild. A manual run on `main` can redeploy without
 a new commit. PR builds never publish to the live site.
 
-Deployment uses GitHub Pages artifacts and the `github-pages` environment, with
-`pages: write` and `id-token: write` permissions limited to the deployment job.
-The deployment environment and workflow summary show the published site URL.
-No personal access token or separate hosting repository is needed.
+Like LMCache core, the deployment job uses the `LMCACHE_DOC` Actions secret to
+check out and push to the publishing repository. The documentation publishing
+maintainer must configure that secret with write access to the target repository
+before the first deployment. Secrets configured only on the LMCache core
+repository are not automatically available to this repository.
 
-Repository administrators must select **Settings → Pages → Build and deployment
-→ Source: GitHub Actions** once. This has been enabled for this repository.
-
-The custom domain is `l2-plugins.lmcache.ai`. The domain administrator must add a
-DNS record with type **CNAME**, name **l2-plugins**, and target
-**lmcache.github.io** (no path). Once DNS resolves and GitHub provisions the TLS
-certificate, enable **Enforce HTTPS** in the repository's Pages settings.
-GitHub Actions deployments use the Pages settings for the custom domain;
-no generated `CNAME` file is required.
+The job synchronizes only the `l2-plugins/` directory and pushes without force.
+The target repository's existing GitHub Pages setup then serves the site.
+No new domain, DNS record, or Pages site is required for this project.
+The URL becomes available after the first successful publication.
