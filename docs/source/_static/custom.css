@@ -1,0 +1,16 @@
+/* Keep the homepage and section navigation consistent with LMCache docs. */
+.hero-tagline {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+}
+
+nav .toctree-l1 > a.expandable {
+    font-weight: 700;
+}
+
+nav .toctree-l1:has(> a.expandable) {
+    margin-top: 0.85rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(128, 128, 128, 0.25);
+}

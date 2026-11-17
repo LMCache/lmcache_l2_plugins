@@ -15,6 +15,8 @@ The repository is at an early stage. We plan to grow shared CI, compatibility te
 
 ## Get started
 
+- [Build and browse this project's documentation](docs/README.md)
+- [Design documents](docs/design/README.md)
 - [Install and use an L2 plugin](docs/installation-and-integration.md)
 - [Learn how to build an external L2 adapter](https://github.com/LMCache/LMCache/blob/dev/docs/source/developer_guide/extending_lmcache/storage_plugins.rst#mp-mode-l2-adapter-plugins-plugin)
 - [LMCache documentation](https://docs.lmcache.ai/)

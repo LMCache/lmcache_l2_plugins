@@ -1,0 +1,63 @@
+name: Documentation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'requirements/docs.txt'
+      - 'lmcache_l2_plugins/**/README.md'
+      - 'asset/**'
+      - '.github/workflows/build_doc.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/**'
+      - 'requirements/docs.txt'
+      - 'lmcache_l2_plugins/**/README.md'
+      - 'asset/**'
+      - '.github/workflows/build_doc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    name: Build docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install documentation dependencies
+        run: python -m pip install -r requirements/docs.txt
+
+      - name: Build Sphinx documentation
+        run: make -C docs html SPHINXOPTS="-W --keep-going -n"
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: documentation-html
+          path: docs/build/html/
+          include-hidden-files: true
+          if-no-files-found: error
