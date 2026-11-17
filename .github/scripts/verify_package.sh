@@ -9,9 +9,9 @@ scratch=$(mktemp -d)
 trap 'rm -rf "$scratch"' EXIT
 python -m venv "$scratch/venv"
 python_bin="$scratch/venv/bin/python"
-"$python_bin" -m pip install --quiet --upgrade pip
-"$python_bin" -m pip install --quiet torch --index-url https://download.pytorch.org/whl/cpu
-NO_GPU_EXT=1 "$python_bin" -m pip install --quiet "${project}[autumn,test] @ file://${distribution}"
+"$python_bin" -m pip install --quiet --upgrade pip uv
+"$scratch/venv/bin/uv" pip install --python "$python_bin" torch --index-url https://download.pytorch.org/whl/cpu
+NO_GPU_EXT=1 "$scratch/venv/bin/uv" pip install --python "$python_bin" "${project}[autumn,test] @ file://${distribution}"
 "$python_bin" -m pip check
 cp -R tests "$scratch/tests"
 cd "$scratch"
