@@ -103,19 +103,6 @@ services:
     depends_on: [bootstrap]
     restart: on-failure
 
-  test:
-    build:
-      args:
-        L2_PLUGIN: autumn
-    environment:
-      AUTUMN_MANAGER: manager:9001
-      E2E_TEST_PATH: e2e/autumn
-    depends_on:
-      bootstrap:
-        condition: service_completed_successfully
-      ps:
-        condition: service_started
-
 volumes:
   secret:
   etcd:

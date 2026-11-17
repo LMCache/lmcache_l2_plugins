@@ -15,18 +15,13 @@
   then build LMCache with `NO_GPU_EXT=1` and `--no-build-isolation` (not
   `NO_NATIVE_EXT=1`). Resolve `dev` to a SHA before Docker builds so its cache
   cannot hide upstream changes.
-- Autumn uses io_uring; its containers need `seccomp:unconfined` on Linux.
-  Bootstrap waits for the partition server before creating namespaces, so the
-  e2e service must start both `ps` and `bootstrap`, waiting for bootstrap to
-  complete. Run clients in the same Compose network as advertised node IPs.
+- Autumn's optional backend service script uses Compose and io_uring; its
+  containers need `seccomp:unconfined`. Native Linux clients must reach every
+  advertised Docker bridge IP, not just a published manager port. Other plugins
+  own their backend lifecycle and need not use Docker or Compose.
 - The CPU server bench defaults to engine-driven transfers. Start its server
   with `--supported-transfer-mode engine_driven` (or `auto`); the server default
   enables only `lmcache_driven` and rejects the client's registration RPC.
-- Keep `e2e/common_scripts/compose.yaml` first when layering a vendor's Compose file:
-  relative build contexts and artifact volumes resolve against the first file.
-- The e2e container runs as root and pytest creates 0700 temporary directories.
-  Keep the runner script's EXIT permission cleanup so the host GitHub runner
-  can upload logs after both successful and failing test runs.
 
 ## Documentation deployment
 

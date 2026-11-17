@@ -24,7 +24,7 @@ def l2_backend() -> L2Backend:
     """Configure the Autumn plugin and an independent key-existence probe."""
     manager = os.environ.get("AUTUMN_MANAGER")
     if not manager:
-        pytest.skip("Use the Autumn Compose overlay or set AUTUMN_MANAGER")
+        pytest.skip("Set AUTUMN_MANAGER; see e2e/autumn/README.md")
 
     # Third Party
     from lmcache.v1.distributed.key_codec import encode_storage_key
