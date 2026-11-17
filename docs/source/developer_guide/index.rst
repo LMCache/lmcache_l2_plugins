@@ -7,6 +7,5 @@ Developer Guide
    contributing
    adding-a-plugin
    publishing
-   e2e
-   e2e-autumn
+   e2e/index
    design-docs

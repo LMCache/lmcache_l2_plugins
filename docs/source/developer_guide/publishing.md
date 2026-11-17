@@ -102,4 +102,4 @@ Replace `0.1.0` with the checkout's `project.version`. Version stamping modifies
 the working copy of `pyproject.toml` for the build only; do not commit that stamp.
 
 Real-server e2e jobs reuse the verified wheel from this same workflow run; see
-[the e2e guide](e2e.md). They run on PR, nightly, release and manual events.
+[the e2e guide](e2e/index.md). They run on PR, nightly, release and manual events.

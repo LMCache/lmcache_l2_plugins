@@ -10,11 +10,9 @@ import socket
 import subprocess
 
 # Third Party
+from e2e.common_scripts.cases import L2Backend, wait_until
 import httpx
 import pytest
-
-# First Party
-from e2e.common_scripts.cases import L2Backend, wait_until
 
 
 @pytest.fixture

@@ -216,7 +216,7 @@ jobs:
           uv pip freeze --system > "$E2E_ARTIFACTS/runtime-versions.txt"
 
       - name: Start L2 backend
-        run: bash "e2e/${{ matrix.plugin }}/service.sh" start
+        run: bash ".github/e2e/${{ matrix.plugin }}/service.sh" start
 
       - name: Run real server round trip on the runner
         run: |
@@ -224,8 +224,8 @@ jobs:
             source "$E2E_ARTIFACTS/backend.env"
           fi
           # Run outside the checkout so imports resolve to the installed wheel.
-          mkdir -p "$RUNNER_TEMP/l2-e2e"
-          cp -R e2e "$RUNNER_TEMP/l2-e2e/"
+          mkdir -p "$RUNNER_TEMP/l2-e2e/.github"
+          cp -R .github/e2e "$RUNNER_TEMP/l2-e2e/.github/"
           cd "$RUNNER_TEMP/l2-e2e"
           python - <<'PYTHON'
           from pathlib import Path
@@ -234,15 +234,15 @@ jobs:
           assert "site-packages" in location.parts, location
           print(f"Testing installed plugin: {location}")
           PYTHON
-          bash e2e/common_scripts/run.sh "e2e/${{ matrix.plugin }}"
+          bash .github/e2e/common_scripts/run.sh ".github/e2e/${{ matrix.plugin }}"
 
       - name: Collect backend logs
         if: always()
-        run: bash "e2e/${{ matrix.plugin }}/service.sh" logs
+        run: bash ".github/e2e/${{ matrix.plugin }}/service.sh" logs
 
       - name: Stop L2 backend
         if: always()
-        run: bash "e2e/${{ matrix.plugin }}/service.sh" stop
+        run: bash ".github/e2e/${{ matrix.plugin }}/service.sh" stop
 
       - name: Upload e2e evidence
         if: always()

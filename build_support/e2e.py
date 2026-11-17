@@ -12,7 +12,7 @@ from build_support.plugins import load_plugins
 def e2e_plugins(root: Path) -> list[str]:
     """Return declared plugins with complete e2e entry points; reject partial ones."""
     declared = {plugin.name for plugin in load_plugins(root)}
-    directory = root / "e2e"
+    directory = root / ".github" / "e2e"
     if not directory.is_dir():
         return []
     backends = {

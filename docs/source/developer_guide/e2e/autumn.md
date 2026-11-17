@@ -1,7 +1,7 @@
 # Autumn server e2e
 
 LMCache and pytest run directly in the native Python environment described in
-[the shared guide](e2e.md). Compose is used only to start
+[the shared guide](index.md). Compose is used only to start
 Autumn's storage backend: etcd, one manager, three extent nodes and one
 partition server. There is no LMCache or test-runner service in the Compose file.
 
@@ -18,12 +18,12 @@ After preparing the Python environment, run from the repository root:
 
 ```bash
 export E2E_ARTIFACTS="$PWD/e2e-artifacts"
-bash e2e/autumn/service.sh start
+bash .github/e2e/autumn/service.sh start
 source "$E2E_ARTIFACTS/backend.env"
-bash e2e/common_scripts/run.sh e2e/autumn
+bash .github/e2e/common_scripts/run.sh .github/e2e/autumn
 # Collect logs and stop the backend even if pytest fails.
-bash e2e/autumn/service.sh logs
-bash e2e/autumn/service.sh stop
+bash .github/e2e/autumn/service.sh logs
+bash .github/e2e/autumn/service.sh stop
 ```
 
 `start` waits for bootstrap and namespace creation, then writes the manager

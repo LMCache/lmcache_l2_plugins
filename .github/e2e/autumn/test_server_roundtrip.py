@@ -10,10 +10,8 @@ import os
 import socket
 
 # Third Party
-import pytest
-
-# First Party
 from e2e.common_scripts.cases import L2Backend, assert_store_clear_retrieve
+import pytest
 
 if TYPE_CHECKING:
     # Third Party
@@ -25,7 +23,7 @@ def l2_backend() -> L2Backend:
     """Configure the Autumn plugin and an independent key-existence probe."""
     manager = os.environ.get("AUTUMN_MANAGER")
     if not manager:
-        pytest.skip("Set AUTUMN_MANAGER; see docs/source/developer_guide/e2e-autumn.md")
+        pytest.skip("Set AUTUMN_MANAGER; see docs/source/developer_guide/e2e/autumn.md")
 
     # Third Party
     from lmcache.v1.distributed.key_codec import encode_storage_key

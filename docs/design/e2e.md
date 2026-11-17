@@ -19,11 +19,11 @@ flowchart TD
     end
 
     subgraph Launch["2. Start the backend and real LMCache server"]
-        Start[e2e/plugin/service.sh start] --> Stage[Copy only e2e outside checkout]
-        Stage --> Runner[e2e/common_scripts/run.sh]
-        Runner --> Pytest[pytest: e2e/plugin/test_server_roundtrip.py]
+        Start[.github/e2e/plugin/service.sh start] --> Stage[Copy only e2e outside checkout]
+        Stage --> Runner[.github/e2e/common_scripts/run.sh]
+        Runner --> Pytest[pytest: .github/e2e/plugin/test_server_roundtrip.py]
         Pytest --> Backend[Backend fixture: adapter JSON + independent exists probe]
-        Backend --> Fixture[e2e/conftest.py: lmcache_server fixture]
+        Backend --> Fixture[.github/e2e/conftest.py: lmcache_server fixture]
         Fixture --> Server[Real lmcache server subprocess + healthcheck]
     end
 
@@ -51,7 +51,7 @@ flowchart TD
 ```
 
 The public developer instructions live in
-[the e2e guide](../source/developer_guide/e2e.md).
+[the e2e guide](../source/developer_guide/e2e/index.md).
 
 ## Boundaries and tradeoffs
 

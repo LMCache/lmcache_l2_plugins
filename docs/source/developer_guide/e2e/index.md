@@ -7,18 +7,22 @@ cases and the test runner do not invoke Docker or Compose.
 
 ## Layers
 
+CI integration tests live under `.github/e2e/`; ordinary unit tests remain
+under `tests/`. Each backend owns one test directory and one guide in this
+documentation section.
+
 ```text
 tests/                         Ordinary UT and adapter tests
-e2e/conftest.py                Shared server fixture, readiness and cleanup
-e2e/common_scripts/
+.github/e2e/conftest.py                Shared server fixture, readiness and cleanup
+.github/e2e/common_scripts/
   cases.py                     L2Backend contract and correctness assertions
   run.sh                       Native pytest command and artifact locations
-e2e/<plugin>/
+.github/e2e/<plugin>/
   test_server_roundtrip.py      Backend fixture and shared case invocation
   service.sh                   Backend-specific start/logs/stop commands
 ```
 
-Default `pytest` collects only `tests/`; e2e uses `e2e/pytest.ini`.
+Default `pytest` collects only `tests/`; e2e uses `.github/e2e/pytest.ini`.
 
 `L2Backend` supplies `adapter_config` (the server's `--l2-adapter` JSON),
 `status_type` (its reported adapter type), and `exists(keys)` (an independent
@@ -54,7 +58,7 @@ Start or configure the chosen backend as its README describes, then run:
 
 ```bash
 PLUGIN=autumn
-bash e2e/common_scripts/run.sh "e2e/$PLUGIN"
+bash .github/e2e/common_scripts/run.sh ".github/e2e/$PLUGIN"
 ```
 
 With an existing backend, set the fixture's connection variables and run that
@@ -63,19 +67,19 @@ command directly; backend provisioning scripts are not part of the case.
 ## Add an L2 plugin
 
 1. Provide an `L2Backend` fixture and request the `lmcache_server` fixture and invoke `assert_store_clear_retrieve(l2_backend, lmcache_server)` in
-   `e2e/<plugin>/test_server_roundtrip.py`. Add `e2e/<plugin>/__init__.py` so
+   `.github/e2e/<plugin>/test_server_roundtrip.py`. Add `.github/e2e/<plugin>/__init__.py` so
    tests use the `e2e.<plugin>` namespace instead of shadowing the vendor SDK.
-2. For CI, implement `e2e/<plugin>/service.sh` with `start`, `logs`, and `stop`.
+2. For CI, implement `.github/e2e/<plugin>/service.sh` with `start`, `logs`, and `stop`.
    `start` waits for readiness and may write Bash `export` statements to
    `$E2E_ARTIFACTS/backend.env`; CI sources this file before running pytest.
    `logs` writes backend diagnostics to `$E2E_ARTIFACTS`; `stop` releases only
    test-owned resources and tolerates a partially failed startup.
 3. Declare runtime and test dependencies in
    `lmcache_l2_plugins/<plugin>/plugin.toml`, following
-   [the plugin guide](adding-a-plugin.md). The existing UT gate
+   [the plugin guide](../adding-a-plugin.md). The existing UT gate
    discovers every declaration and verifies it in an isolated environment.
    E2e CI reuses that inventory and opts in plugins with complete
-   `e2e/<plugin>/` folders; no workflow matrix or second plugin list is edited.
+   `.github/e2e/<plugin>/` folders; no workflow matrix or second plugin list is edited.
 
 A registered plugin without an e2e folder runs UT only. Partial e2e folders
 or folders for undeclared plugins fail discovery rather than silently skipping.
@@ -84,7 +88,7 @@ can share test filenames when their directories are collected together.
 
 Backend startup is entirely vendor-owned: native processes, Compose, or an
 existing remote service can all be used. No Compose file or container image is
-required by the shared interface. Only [Autumn's service script](e2e-autumn.md)
+required by the shared interface. Only [Autumn's service script](autumn.md)
 currently uses Compose, exclusively for its storage cluster.
 
 ## CI and evidence
@@ -92,7 +96,7 @@ currently uses Compose, exclusively for its storage cluster.
 The Package workflow builds and verifies the wheel and source distribution once.
 Its e2e jobs depend on that build and download the same run's `distributions`
 artifact. They install the wheel with the selected plugin extra, then copy only
-`e2e/` outside the checkout before running tests. This prevents source imports
+`.github/e2e/` outside the checkout before running tests. This prevents source imports
 from masking an incorrect or incomplete wheel. The wheel checksum is recorded
 with the evidence. Local source installation above is a development shortcut;
 to reproduce CI, install the downloaded wheel with `[autumn,test]` instead.
@@ -109,3 +113,11 @@ Artifacts include JUnit XML, LMCache logs and backend diagnostics as
 
 `lmcache bench l2` directly exercises an adapter; this case covers the real
 server protocol, asynchronous store, L1 clear, L2 prefetch and retrieval.
+
+## Backend guides
+
+```{toctree}
+:maxdepth: 1
+
+autumn
+```

@@ -26,7 +26,7 @@
   same test filename. Backend test folders need `__init__.py` so their module
   names stay under `e2e.<plugin>` rather than shadowing installed SDKs.
   UT verification discovers plugin declarations and isolates each environment.
-  E2e discovery uses the same inventory, with complete `e2e/<plugin>` folders
+  E2e discovery uses the same inventory, with complete `.github/e2e/<plugin>` folders
   opting into CI; do not introduce a second hardcoded plugin list.
 - This repository has no `.pre-commit-config.yaml`. Until hooks are added,
   validate packaging changes with Ruff, isort, `actionlint`, `bash -n`, and
@@ -62,5 +62,10 @@
   under `docs/design/`; register site pages in the appropriate toctree.
 - E2e belongs after the Package build in the same workflow. Download its
   `distributions` artifact rather than rebuilding or installing the checkout.
-  Run from a staging directory containing only `e2e/` to keep the repository's
+  Run from a staging directory containing only `.github/e2e/` to keep the repository's
   package directory off the import path and verify the installed wheel.
+
+- Keep CI e2e under `.github/e2e/`, separate from `tests/`. Backend e2e
+  guides belong under `docs/source/developer_guide/e2e/`, with one page per
+  backend and a shared `index.md`. Stage `.github/e2e/` with the same layout
+  in CI; its pytest config adds `.github/` to import the `e2e` test package.
