@@ -1,0 +1,133 @@
+name: Documentation
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'docs/source/**'
+      - 'docs/Makefile'
+      - 'docs/make.bat'
+      - 'docs/installation-and-integration.md'
+      - 'requirements/docs.txt'
+      - 'lmcache_l2_plugins/**/README.md'
+      - 'asset/**'
+      - '.github/workflows/build_doc.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'docs/source/**'
+      - 'docs/Makefile'
+      - 'docs/make.bat'
+      - 'docs/installation-and-integration.md'
+      - 'requirements/docs.txt'
+      - 'lmcache_l2_plugins/**/README.md'
+      - 'asset/**'
+      - '.github/workflows/build_doc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  build-docs:
+    name: Build docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Checkout code
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@83679a892e2d95755f2dac6acb0bfd1e9ac5d548 # v6.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Install documentation dependencies
+        run: python -m pip install -r requirements/docs.txt
+
+      - name: Build Sphinx documentation
+        run: make -C docs html SPHINXOPTS="-W --keep-going -n"
+
+      - name: Upload HTML documentation
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
+        with:
+          name: documentation-html
+          path: docs/build/html/
+          include-hidden-files: true
+          if-no-files-found: error
+
+  deploy-docs:
+    name: Deploy docs online
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: build-docs
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment:
+      name: documentation
+      url: https://lmcache-website.github.io/lmcache-l2-plugins/
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          disable-sudo-and-containers: true
+          egress-policy: audit
+
+      - name: Check deployment credential
+        env:
+          LMCACHE_L2_DOC_DEPLOY_KEY: ${{ secrets.LMCACHE_L2_DOC_DEPLOY_KEY }}
+        run: |
+          if [ -z "$LMCACHE_L2_DOC_DEPLOY_KEY" ]; then
+            echo "::error::Configure LMCACHE_L2_DOC_DEPLOY_KEY with the SSH deploy key for LMCache-website/lmcache-l2-plugins."
+            exit 1
+          fi
+
+      - name: Fetch doc artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: documentation-html
+          path: output
+
+      - name: Checkout documentation website
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          repository: LMCache-website/lmcache-l2-plugins
+          ref: main
+          ssh-key: ${{ secrets.LMCACHE_L2_DOC_DEPLOY_KEY }}
+          path: target-repo
+
+      - name: Publish plugin documentation
+        working-directory: target-repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions@github.com"
+          # Retry if another update reaches the publishing repository first.
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            rsync -a --delete --exclude=.git --exclude=.github ../output/ ./
+            touch .nojekyll
+            git add --all
+            if git diff --cached --quiet; then
+              echo "No documentation changes to publish."
+              exit 0
+            fi
+            git commit -m "Deploy LMCache L2 Plugins documentation"
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "Push attempt $attempt failed; retrying against the latest main."
+          done
+          echo "::error::Could not publish documentation after three attempts."
+          exit 1
