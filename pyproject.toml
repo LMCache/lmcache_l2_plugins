@@ -24,6 +24,9 @@ namespaces = false
 [tool.ruff]
 line-length = 88
 
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
 [tool.ruff.lint]
 # The rules LMCache itself enforces.
 select = ["E", "F", "B", "G004", "PLE1205"]

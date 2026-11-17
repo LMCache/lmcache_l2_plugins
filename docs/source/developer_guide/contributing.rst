@@ -15,7 +15,8 @@ Repository layout
 -----------------
 
 * ``lmcache_l2_plugins/<name>/``: plugin implementation and backend README.
-* ``tests/<name>/``: plugin tests.
+* ``tests/<name>/``: unit tests.
+* ``.github/e2e/<name>/``: optional real-service tests, separate from unit tests.
 * ``lmcache_l2_plugins/<name>/plugin.toml``: backend dependencies and verification
   declarations; packaging automatically generates the extra named after the plugin.
 * ``docs/source/plugins/``: integration pages included in the Sphinx site.

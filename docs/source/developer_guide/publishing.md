@@ -6,10 +6,10 @@ releases to PyPI. All distributions use the name `lmcache-l2-plugins`.
 
 | Event | Destination | Version |
 | --- | --- | --- |
-| Every PR targeting `main`, including drafts | Actions artifact `distributions` | `<project.version>.dev<run_id><attempt padded to 3 digits>` |
+| Every PR, including drafts | Actions artifact `distributions` | `<project.version>.dev<run_id><attempt padded to 3 digits>` |
 | Push to `main` | [TestPyPI](https://test.pypi.org/project/lmcache-l2-plugins/) and Actions artifacts | Same development version format |
 | GitHub Release published | [PyPI](https://pypi.org/project/lmcache-l2-plugins/) and Actions artifacts | Exact `project.version`, validated against the release tag |
-| Manual workflow run | Actions artifacts only | Development version |
+| Nightly or manual workflow run | Actions artifacts only | Development version |
 
 The Package workflow builds a wheel and source distribution, runs
 `twine check --strict`, and installs each in a separate fresh virtual environment.
@@ -100,3 +100,6 @@ python -m build_support.verify_package dist/*.tar.gz lmcache-l2-plugins 0.1.0.de
 
 Replace `0.1.0` with the checkout's `project.version`. Version stamping modifies
 the working copy of `pyproject.toml` for the build only; do not commit that stamp.
+
+Real-server e2e jobs reuse the verified wheel from this same workflow run; see
+[the e2e guide](e2e/index.md). They run on PR, nightly, release and manual events.

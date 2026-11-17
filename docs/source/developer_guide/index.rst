@@ -5,4 +5,7 @@ Developer Guide
    :maxdepth: 2
 
    contributing
+   adding-a-plugin
+   publishing
+   e2e/index
    design-docs

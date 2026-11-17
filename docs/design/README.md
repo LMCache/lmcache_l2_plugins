@@ -29,3 +29,7 @@ design to explain; a missing directory means no standalone design doc exists yet
 - Use relative links between documents in this tree.
 - Keep installation and operational instructions in the user-facing guides under
   `docs/source/` or in the plugin README; link to them rather than duplicating them.
+
+## Shared infrastructure
+
+- [Real-server L2 e2e](e2e.md): package reuse, call chain and backend boundaries.
