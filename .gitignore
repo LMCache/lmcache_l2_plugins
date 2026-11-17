@@ -3,3 +3,5 @@ __pycache__/
 build/
 dist/
 .pytest_cache/
+tests/e2e/artifacts/
+e2e-artifacts/
