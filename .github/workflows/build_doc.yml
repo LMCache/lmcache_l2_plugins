@@ -76,7 +76,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: documentation
-      url: https://docs.lmcache.ai/lmcache-l2-plugins/
+      url: https://lmcache-website.github.io/lmcache-l2-plugins/
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -86,10 +86,10 @@ jobs:
 
       - name: Check deployment credential
         env:
-          LMCACHE_L2_DOC: ${{ secrets.LMCACHE_L2_DOC }}
+          LMCACHE_L2_DOC_DEPLOY_KEY: ${{ secrets.LMCACHE_L2_DOC_DEPLOY_KEY }}
         run: |
-          if [ -z "$LMCACHE_L2_DOC" ]; then
-            echo "::error::Configure LMCACHE_L2_DOC with write access to LM-Cache-Website/lmcache-l2-plugins, for the independent plugin documentation website."
+          if [ -z "$LMCACHE_L2_DOC_DEPLOY_KEY" ]; then
+            echo "::error::Configure LMCACHE_L2_DOC_DEPLOY_KEY with the SSH deploy key for LMCache-website/lmcache-l2-plugins."
             exit 1
           fi
 
@@ -102,9 +102,9 @@ jobs:
       - name: Checkout documentation website
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
         with:
-          repository: LM-Cache-Website/lmcache-l2-plugins
+          repository: LMCache-website/lmcache-l2-plugins
           ref: main
-          token: ${{ secrets.LMCACHE_L2_DOC }}
+          ssh-key: ${{ secrets.LMCACHE_L2_DOC_DEPLOY_KEY }}
           path: target-repo
 
       - name: Publish plugin documentation

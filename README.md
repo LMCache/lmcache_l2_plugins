@@ -15,7 +15,7 @@ The repository is at an early stage. We plan to grow shared CI, compatibility te
 
 ## Get started
 
-- [LMCache L2 Plugins documentation](https://docs.lmcache.ai/lmcache-l2-plugins/)
+- [LMCache L2 Plugins documentation](https://lmcache-website.github.io/lmcache-l2-plugins/)
 - [Build the documentation locally](docs/README.md)
 - [Design documents](docs/design/README.md)
 - [Install and use an L2 plugin](docs/installation-and-integration.md)

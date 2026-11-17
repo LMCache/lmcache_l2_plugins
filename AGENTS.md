@@ -15,12 +15,15 @@
 ## Documentation deployment
 
 - Follow LMCache's publishing pattern, using the independent repository
-  `LM-Cache-Website/lmcache-l2-plugins` and the `LMCACHE_L2_DOC` Actions secret.
-  Publish generated HTML to its root. Do not write to the main LMCache website
-  repository `LM-Cache-Website/lm-cache-website.github.io`.
-- A GitHub Pages project site inherits the organization's custom domain. With
-  Pages publishing from `main` at `/`, this site's URL is
-  `https://docs.lmcache.ai/lmcache-l2-plugins/`; no new DNS record is needed.
-- Verify publishing-repository access and secret availability before treating
-  a successful docs build as a successful deployment. Companion repositories
-  do not inherit repository secrets from LMCache core.
+  `LMCache-website/lmcache-l2-plugins` and the `LMCACHE_L2_DOC_DEPLOY_KEY` Actions
+  secret. The secret is an SSH deploy key scoped to this publishing repository;
+  pass it to `actions/checkout` through `ssh-key`, not `token`.
+- Publish generated HTML to the target repository's root. Pages serves `main`
+  at `/`, with URL `https://lmcache-website.github.io/lmcache-l2-plugins/`.
+  Do not write to `LM-Cache-Website/lm-cache-website.github.io`.
+- New GitHub organizations disable deploy keys by default. An organization
+  owner must enable **Settings → Member privileges → Deploy keys** before the
+  publishing key can be registered.
+- Verify target repository access and secret availability before treating a
+  successful docs build as a successful deployment. Organization names
+  `LMCache-website` and `LM-Cache-Website` identify different organizations.
