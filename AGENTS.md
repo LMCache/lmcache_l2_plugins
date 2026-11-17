@@ -22,5 +22,5 @@
 - The CPU server bench defaults to engine-driven transfers. Start its server
   with `--supported-transfer-mode engine_driven` (or `auto`); the server default
   enables only `lmcache_driven` and rejects the client's registration RPC.
-- Keep `tests/e2e/compose.yaml` first when layering a vendor's Compose file:
+- Keep `.buildkite/k3_tests/common_scripts/compose.yaml` first when layering a vendor's Compose file:
   relative build contexts and artifact volumes resolve against the first file.

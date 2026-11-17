@@ -11,7 +11,7 @@ import os
 import socket
 
 # Third Party
-from e2e.cases import L2Backend, assert_store_clear_retrieve
+from common_scripts.cases import L2Backend, assert_store_clear_retrieve
 import pytest
 
 if TYPE_CHECKING:

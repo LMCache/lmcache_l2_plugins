@@ -18,4 +18,5 @@ RUN test -n "$L2_PLUGIN" \
     && uv pip install --system ".[${L2_PLUGIN},test]" pytest-timeout \
     && uv pip freeze --system > /opt/runtime-versions.txt
 COPY tests ./tests
-CMD ["bash", "tests/e2e/run.sh"]
+COPY .buildkite/k3_tests ./.buildkite/k3_tests
+CMD ["bash", ".buildkite/k3_tests/common_scripts/run.sh"]

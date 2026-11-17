@@ -109,7 +109,7 @@ services:
         L2_PLUGIN: autumn
     environment:
       AUTUMN_MANAGER: manager:9001
-      E2E_TEST_PATH: tests/autumn/e2e
+      E2E_TEST_PATH: .buildkite/k3_tests/autumn
     depends_on:
       bootstrap:
         condition: service_completed_successfully

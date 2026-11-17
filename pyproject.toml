@@ -30,7 +30,7 @@ include = ["lmcache_l2_plugins*"]
 line-length = 88
 
 [tool.pytest.ini_options]
-pythonpath = ["tests"]
+testpaths = ["tests"]
 
 [tool.ruff.lint]
 # The rules LMCache itself enforces.

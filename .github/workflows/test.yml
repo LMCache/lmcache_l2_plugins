@@ -66,7 +66,7 @@ jobs:
     timeout-minutes: 30
     env:
       COMPOSE_PROJECT_NAME: l2-e2e-${{ matrix.plugin }}
-      COMPOSE_FILE: tests/e2e/compose.yaml:tests/${{ matrix.plugin }}/e2e/compose.yaml
+      COMPOSE_FILE: .buildkite/k3_tests/common_scripts/compose.yaml:.buildkite/k3_tests/${{ matrix.plugin }}/compose.yaml
       E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts/${{ matrix.plugin }}
     steps:
       - name: Harden Runner

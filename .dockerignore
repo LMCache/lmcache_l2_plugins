@@ -1,5 +1,4 @@
 .git
 **/__pycache__
 **/.pytest_cache
-tests/e2e/artifacts
 e2e-artifacts

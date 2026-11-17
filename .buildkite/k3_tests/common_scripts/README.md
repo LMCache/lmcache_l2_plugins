@@ -3,19 +3,24 @@
 The shared case starts a real `lmcache server` and uses CPU KV buffers through
 LMCache dev's `ServerBenchClient`. It needs no inference engine, model, CUDA,
 or GPU. Backend implementations supply their differences under
-`tests/<plugin>/e2e/`.
+`.buildkite/k3_tests/<plugin>/`.
 
 ## Layers
 
+Like LMCache, ordinary tests live in `tests/` and end-to-end scenarios live
+under `.buildkite/k3_tests/`. This repository runs them with GitHub Actions;
+the directory layout does not require a Buildkite agent. Default `pytest`
+collects only `tests/`; the e2e runner selects its own `pytest.ini`.
+
 ```text
-tests/e2e/
+.buildkite/k3_tests/common_scripts/
   cases.py       L2Backend contract and store/clear/retrieve assertions
   server.py      LMCache server lifecycle, readiness and bounded shutdown
   Dockerfile     CPU LMCache build and selected plugin extra installation
   compose.yaml   Shared runner service, build context and artifact volume
   run.sh         Shared pytest command and report locations
 
-tests/<plugin>/e2e/
+.buildkite/k3_tests/<plugin>/
   test_server_roundtrip.py   Backend fixture and shared case invocation
   compose.yaml              Backend services and runner overrides
   README.md                 Backend prerequisites and run commands
@@ -36,18 +41,19 @@ buffers and compares every chunk checksum.
 
 ## Add an L2 plugin
 
-1. Add `tests/<plugin>/e2e/test_server_roundtrip.py`. Its fixture returns an
-   `L2Backend`; its test calls `assert_store_clear_retrieve(backend, tmp_path)`.
+1. Add `.buildkite/k3_tests/<plugin>/test_server_roundtrip.py`. Its fixture
+   returns an `L2Backend`; its test calls `assert_store_clear_retrieve(backend, tmp_path)`.
    Keep optional SDK imports inside the fixture, after checking whether its
-   live backend is configured, so regular unit jobs can collect and skip it.
-2. Add `tests/<plugin>/e2e/compose.yaml`. Define the backend services and extend
-   the shared `test` service with `build.args.L2_PLUGIN: <plugin>`, its backend
-   environment, `E2E_TEST_PATH: tests/<plugin>/e2e`, and readiness dependencies.
+   live backend is configured, so e2e collection can skip an unconfigured backend.
+2. Add `.buildkite/k3_tests/<plugin>/compose.yaml`. Define the backend services
+   and extend the shared `test` service with `build.args.L2_PLUGIN: <plugin>`, its backend
+   environment, `E2E_TEST_PATH: .buildkite/k3_tests/<plugin>`, and readiness
+   dependencies.
    The matching package extra installs that plugin's dependencies.
 3. Add `<plugin>` to the e2e job's `matrix.plugin` list. The common job handles
    build, runtime manifest, case execution, logs, cleanup, and artifact upload.
 
-Use [Autumn](../autumn/e2e/README.md) as the first concrete implementation.
+Use [Autumn](../autumn/README.md) as the first concrete implementation.
 Compose files must be ordered with the shared file first: relative build and
 volume paths in every overlay resolve against that first file's directory.
 Do not copy the common case, server lifecycle, Dockerfile or pytest command.
@@ -64,7 +70,7 @@ entries have independent Compose projects and artifact directories.
 The image records `/opt/lmcache-revision.txt` and `/opt/runtime-versions.txt`.
 CI uploads those versions, both source revisions, JUnit XML, server logs and
 cluster logs as `l2-server-e2e-<plugin>`. Local artifacts default to
-`tests/e2e/artifacts`; `E2E_ARTIFACTS` can set an absolute destination.
+`e2e-artifacts`; `E2E_ARTIFACTS` can set an absolute destination.
 
 `lmcache bench l2` directly exercises an adapter in its own process. These
 shared cases cover the real server request protocol, asynchronous store
