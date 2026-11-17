@@ -13,10 +13,12 @@ releases to PyPI. All distributions use the name `lmcache-l2-plugins`.
 
 The Package workflow builds a wheel and source distribution, runs
 `twine check --strict`, and installs each in a separate fresh virtual environment.
-Verification installs CPU PyTorch and the `autumn,test` extras, checks dependency
-consistency, imports the adapter outside the checkout, and runs the adapter unit
-tests against the installed package. It does not require GPUs or an Autumn
-cluster; real cluster tests remain opt-in using `AUTUMN_MANAGER`.
+Verification automatically discovers each plugin's `plugin.toml` and installs
+CPU PyTorch, that plugin's extra, and its test dependencies in a fresh environment
+per plugin. It checks dependencies and declared imports outside the checkout,
+then runs only that plugin's tests against the installed package. Default tests
+require no GPUs or external services. See [adding a plugin](adding-a-plugin.md)
+for the directory and declaration contract.
 
 After publishing, a separate job downloads the exact wheel from the destination
 index with a bounded retry, compares its SHA-256 with the built wheel, and repeats
@@ -54,7 +56,7 @@ adding this workflow alone does not grant publishing rights.
 1. Update `project.version` in `pyproject.toml` through a PR and merge it.
 2. Create a tag on the intended merged commit, for example `v0.1.0`, and publish
    a GitHub Release for that tag. Tag pushes alone do not publish packages.
-3. Check all Package jobs, including `verify-release`. Tags must match the
+3. Check all Package jobs, including `Verify published package`. Tags must match the
    static version exactly. Prereleases such as `v0.2.0rc1` are supported.
 
 Development versions include the Actions run ID and attempt to avoid index
@@ -87,13 +89,13 @@ PyTorch index. `autumn-rs` does not publish macOS wheels. From a clean checkout
 of the revision being tested:
 
 ```bash
-python -m pip install build twine packaging pytest
+python -m pip install build twine packaging pytest "setuptools>=77.0.3" wheel
 python -m pytest -q .github/tests
 python .github/scripts/prepare_package.py --run-id 12345 --run-attempt 1
 python -m build
 python -m twine check --strict dist/*
-bash .github/scripts/verify_package.sh dist/*.whl lmcache-l2-plugins 0.1.0.dev12345001
-bash .github/scripts/verify_package.sh dist/*.tar.gz lmcache-l2-plugins 0.1.0.dev12345001
+python -m build_support.verify_package dist/*.whl lmcache-l2-plugins 0.1.0.dev12345001
+python -m build_support.verify_package dist/*.tar.gz lmcache-l2-plugins 0.1.0.dev12345001
 ```
 
 Replace `0.1.0` with the checkout's `project.version`. Version stamping modifies

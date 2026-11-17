@@ -15,3 +15,7 @@
   validate packaging changes with Ruff, isort, `actionlint`, `bash -n`, and
   `.github/tests`, then run the Linux package installation checks documented in
   `docs/publishing.md`. Do not report an unavailable pre-commit run as passing.
+- Setuptools' isolated PEP 517 hooks do not guarantee the checkout is on
+  `sys.path`. `setup.py` loads only the build helper via `runpy`; keep that
+  helper and plugin declarations in `MANIFEST.in`. Validate with `python -m
+  build` (sdist followed by wheel-from-sdist), not only a direct wheel build.

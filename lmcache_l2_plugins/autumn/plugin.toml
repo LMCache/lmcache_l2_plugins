@@ -1,0 +1,7 @@
+# Packaging and CPU verification requirements for this plugin only.
+dependencies = ["lmcache>=0.5.7", "autumn-rs>=0.1.2"]
+
+[verification]
+imports = ["lmcache_l2_plugins.autumn"]
+# Additional test-only dependencies can be declared here.
+dependencies = []
