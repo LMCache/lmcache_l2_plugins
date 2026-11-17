@@ -21,6 +21,9 @@ without starting an inference engine.
 
 ## Get started
 
+- [LMCache L2 Plugins documentation](https://lmcache-website.github.io/lmcache-l2-plugins/)
+- [Build the documentation locally](docs/README.md)
+- [Design documents](docs/design/README.md)
 - [Install and use an L2 plugin](docs/installation-and-integration.md)
 - [Learn how to build an external L2 adapter](https://github.com/LMCache/LMCache/blob/dev/docs/source/developer_guide/extending_lmcache/storage_plugins.rst#mp-mode-l2-adapter-plugins-plugin)
 - [LMCache documentation](https://docs.lmcache.ai/)
