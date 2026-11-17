@@ -29,6 +29,9 @@ include = ["lmcache_l2_plugins*"]
 [tool.ruff]
 line-length = 88
 
+[tool.pytest.ini_options]
+pythonpath = ["tests"]
+
 [tool.ruff.lint]
 # The rules LMCache itself enforces.
 select = ["E", "F", "B", "G004", "PLE1205"]

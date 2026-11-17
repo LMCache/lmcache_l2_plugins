@@ -56,14 +56,18 @@ jobs:
       - name: Run unit tests
         run: python -m pytest -q -rs tests
 
-  autumn-e2e:
-    name: Autumn server e2e (LMCache dev, CPU)
+  l2-e2e:
+    name: L2 server e2e (${{ matrix.plugin }}, LMCache dev, CPU)
+    strategy:
+      fail-fast: false
+      matrix:
+        plugin: [autumn]
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     env:
-      COMPOSE_PROJECT_NAME: autumn-e2e
-      COMPOSE_FILE: tests/e2e/compose.yaml
-      E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts
+      COMPOSE_PROJECT_NAME: l2-e2e-${{ matrix.plugin }}
+      COMPOSE_FILE: tests/e2e/compose.yaml:tests/${{ matrix.plugin }}/e2e/compose.yaml
+      E2E_ARTIFACTS: ${{ github.workspace }}/e2e-artifacts/${{ matrix.plugin }}
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -110,5 +114,5 @@ jobs:
         if: always()
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6.0.0
         with:
-          name: autumn-server-e2e
-          path: e2e-artifacts/
+          name: l2-server-e2e-${{ matrix.plugin }}
+          path: e2e-artifacts/${{ matrix.plugin }}/

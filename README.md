@@ -13,7 +13,7 @@ LMCache core defines the L2 adapter interface and loads external implementations
 
 The repository is at an early stage. We plan to grow shared CI, compatibility testing, contribution templates, and integration documentation over time.
 
-CI runs unit tests and a [real-server Autumn e2e](tests/e2e/README.md) on pull
+CI runs unit tests and a [shared real-server L2 e2e](tests/e2e/README.md) on pull
 requests (including drafts), nightly, published releases, and manual dispatch.
 Release runs test the released plugin tag. The e2e builds LMCache `dev` with CPU
 extensions and verifies L2 writes and checksum-correct reads after clearing L1,

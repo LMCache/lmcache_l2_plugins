@@ -1,70 +1,71 @@
-# Autumn server e2e
+# Shared L2 server e2e
 
-This test runs a real `lmcache server` subprocess and a disposable Autumn TCP
-cluster (etcd, manager, three extent nodes, partition server). It uses the CPU
-`ServerBenchClient` from LMCache dev, without vLLM, a model, CUDA, or a GPU.
-The plugin is installed as a package with its `autumn` extra inside the test
-image; LMCache loads it through `--l2-adapter` with `type=plugin`.
+The shared case starts a real `lmcache server` and uses CPU KV buffers through
+LMCache dev's `ServerBenchClient`. It needs no inference engine, model, CUDA,
+or GPU. Backend implementations supply their differences under
+`tests/<plugin>/e2e/`.
 
-CI runs on every PR's opening, update, reopening, or ready-for-review event,
-including draft PRs and PRs to any target branch; every night at 02:17
-Asia/Shanghai; and publication of a release or prerelease. PR runs check out
-the merge revision, nightly runs use the default branch, and release runs use
-the released tag. Manual dispatch uses the selected branch or tag. Every run
-resolves LMCache `dev` to an exact SHA before building. Separate concurrency
-groups keep nightly, release, PR, and manual runs from cancelling one another.
+## Layers
 
-## Run
+```text
+tests/e2e/
+  cases.py       L2Backend contract and store/clear/retrieve assertions
+  server.py      LMCache server lifecycle, readiness and bounded shutdown
+  Dockerfile     CPU LMCache build and selected plugin extra installation
+  compose.yaml   Shared runner service, build context and artifact volume
+  run.sh         Shared pytest command and report locations
 
-Prerequisites: Docker Engine with Compose v2, a Linux kernel >= 5.15 with
-io_uring enabled, internet access, and enough memory to compile LMCache's CPU
-extensions (8 GiB is recommended). Docker Desktop uses its Linux VM. The
-Autumn containers need `seccomp:unconfined` for io_uring. No host service ports
-are published; the client and backend share the Compose network.
-
-From the repository root:
-
-```bash
-export COMPOSE_FILE=tests/e2e/compose.yaml
-export COMPOSE_PROJECT_NAME=autumn-e2e
-# Resolve dev to an immutable revision so Docker does not reuse an older build.
-export LMCACHE_REF=$(git ls-remote https://github.com/LMCache/LMCache.git refs/heads/dev | cut -f1)
-docker compose build test
-docker compose run --rm test
-# Inspect evidence before cleanup, including when the test fails.
-docker compose logs --no-color > tests/e2e/artifacts/autumn.log
-docker compose down --volumes --remove-orphans
+tests/<plugin>/e2e/
+  test_server_roundtrip.py   Backend fixture and shared case invocation
+  compose.yaml              Backend services and runner overrides
+  README.md                 Backend prerequisites and run commands
 ```
 
-Set `LMCACHE_REF` to a commit SHA to reproduce an earlier run. The image records
-the resolved LMCache SHA in `/opt/lmcache-revision.txt`; CI also uploads the
-LMCache and plugin revisions, installed package versions, JUnit XML,
-LMCache server log, and cluster logs
-in the `autumn-server-e2e` artifact. The default artifact directory is
+`L2Backend` has three fields: `adapter_config` (the server's `--l2-adapter`
+JSON), `status_type` (the adapter's reported type), and `exists(keys)` (an
+independent real-backend probe). The probe accepts LMCache `ObjectKey` values
+and returns one boolean per key in input order. Vendor fixtures own backend
+clients, credentials, key encoding, and cleanup. Shared cases never import a
+vendor SDK or construct its storage key format.
+
+The shared store/clear/retrieve case checks that four fresh keys are absent,
+stores deterministic two-layer KV, confirms all four objects reached L2,
+and waits for asynchronous stores to drain. It clears only L1 via HTTP,
+asserts zero L1 objects and intact L2 keys, then retrieves into zeroed CPU
+buffers and compares every chunk checksum.
+
+## Add an L2 plugin
+
+1. Add `tests/<plugin>/e2e/test_server_roundtrip.py`. Its fixture returns an
+   `L2Backend`; its test calls `assert_store_clear_retrieve(backend, tmp_path)`.
+   Keep optional SDK imports inside the fixture, after checking whether its
+   live backend is configured, so regular unit jobs can collect and skip it.
+2. Add `tests/<plugin>/e2e/compose.yaml`. Define the backend services and extend
+   the shared `test` service with `build.args.L2_PLUGIN: <plugin>`, its backend
+   environment, `E2E_TEST_PATH: tests/<plugin>/e2e`, and readiness dependencies.
+   The matching package extra installs that plugin's dependencies.
+3. Add `<plugin>` to the e2e job's `matrix.plugin` list. The common job handles
+   build, runtime manifest, case execution, logs, cleanup, and artifact upload.
+
+Use [Autumn](../autumn/e2e/README.md) as the first concrete implementation.
+Compose files must be ordered with the shared file first: relative build and
+volume paths in every overlay resolve against that first file's directory.
+Do not copy the common case, server lifecycle, Dockerfile or pytest command.
+
+## CI and evidence
+
+CI runs for all PR target branches (including drafts), nightly at 02:17
+Asia/Shanghai, published releases and prereleases, and manual dispatch. PRs
+check out their merge revision; nightly uses the default branch; release uses
+the released tag; manual dispatch uses the selected ref. Every run resolves
+LMCache dev to an exact SHA. Concurrency is isolated by event, and matrix
+entries have independent Compose projects and artifact directories.
+
+The image records `/opt/lmcache-revision.txt` and `/opt/runtime-versions.txt`.
+CI uploads those versions, both source revisions, JUnit XML, server logs and
+cluster logs as `l2-server-e2e-<plugin>`. Local artifacts default to
 `tests/e2e/artifacts`; `E2E_ARTIFACTS` can set an absolute destination.
-The Autumn image is pinned by digest in `compose.yaml`. Its cluster setup is
-adapted from [autumn-rs deploy/compose](https://github.com/journeymidnight/autumn-rs/tree/main/deploy/compose).
 
-## Assertions
-
-1. Four unique chunk keys are initially absent in Autumn, and server LOOKUP
-   reports a full miss.
-2. A CPU worker fills deterministic KV data for two layers and stores four
-   chunks through the LMCache request protocol.
-3. The real Autumn client sees all four stored keys. The test waits until the
-   server's asynchronous L2 stores have drained.
-4. `POST /cache/clear` with `{"tier":"l1","force":false}` empties L1; the
-   test checks its object count is zero and the Autumn keys still exist.
-5. A new request zeros its destination buffers, LOOKUP hits all four chunks
-   through L2, and RETRIEVE restores the original per-chunk KV checksums.
-
-All waits and subprocess shutdowns are bounded. The container's pytest timeout
-also catches hung backend calls. Without `AUTUMN_MANAGER`, this live test skips
-in the ordinary unit test job. The Compose test always sets it, so CI must run
-the round trip instead of silently skipping it.
-
-`lmcache bench l2` (`l2_adapter_bench`) directly creates and exercises an adapter
-in its own process. It is useful for adapter throughput measurements, but does
-not start an LMCache server or cover its request protocol, asynchronous store
-controller, L1 clear, and L2 prefetch path. This e2e reuses the server bench's
-public client operations to cover those paths with assertions.
+`lmcache bench l2` directly exercises an adapter in its own process. These
+shared cases cover the real server request protocol, asynchronous store
+controller, HTTP L1 clear, and L2 prefetch/retrieve instead.

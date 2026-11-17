@@ -13,7 +13,9 @@ RUN git clone https://github.com/LMCache/LMCache.git /opt/LMCache \
 WORKDIR /opt/plugins
 COPY pyproject.toml README.md ./
 COPY lmcache_l2_plugins ./lmcache_l2_plugins
-RUN uv pip install --system ".[autumn,test]" pytest-timeout \
+ARG L2_PLUGIN
+RUN test -n "$L2_PLUGIN" \
+    && uv pip install --system ".[${L2_PLUGIN},test]" pytest-timeout \
     && uv pip freeze --system > /opt/runtime-versions.txt
-COPY tests/e2e/test_server_roundtrip.py ./tests/e2e/test_server_roundtrip.py
-CMD ["python", "-m", "pytest", "-v", "-s", "--timeout=180", "--junitxml=/artifacts/junit.xml", "--basetemp=/artifacts/pytest", "tests/e2e/test_server_roundtrip.py"]
+COPY tests ./tests
+CMD ["bash", "tests/e2e/run.sh"]
