@@ -11,3 +11,7 @@
   the project.
 - If GitHub Actions warns that an action still targets deprecated Node.js 20,
   update its pinned SHA to a release whose `action.yml` declares Node.js 24.
+- This repository has no `.pre-commit-config.yaml`. Until hooks are added,
+  validate packaging changes with Ruff, isort, `actionlint`, `bash -n`, and
+  `.github/tests`, then run the Linux package installation checks documented in
+  `docs/publishing.md`. Do not report an unavailable pre-commit run as passing.
