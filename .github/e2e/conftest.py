@@ -62,7 +62,7 @@ def lmcache_server(tmp_path: Path, l2_backend: L2Backend) -> Iterator[tuple[str,
                 return False
 
         wait_until(ready, "LMCache server readiness")
-        yield f"tcp://127.0.0.1:{rpc_port}", http_url
+        yield f"grpc://127.0.0.1:{rpc_port}", http_url
     finally:
         if process.poll() is None:
             process.send_signal(signal.SIGINT)
